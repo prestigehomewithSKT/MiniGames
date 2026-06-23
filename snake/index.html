@@ -12,150 +12,100 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    html, body {
-      height: 100%; width: 100%;
+    html { height: 100%; }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
       overflow: hidden;
-      background: radial-gradient(ellipse at 50% 30%, #2e2e2e 0%, #0a0a0a 100%);
-      display: flex; align-items: center; justify-content: center;
-      padding: env(safe-area-inset-top) env(safe-area-inset-right)
-               env(safe-area-inset-bottom) env(safe-area-inset-left);
-    }
-
-    /* ── PHONE CHASSIS ── */
-    #phone-wrap {
-      transform-origin: top center;
-    }
-
-    #phone {
-      width: 280px;
-      background: linear-gradient(165deg, #3e3e3e 0%, #202020 45%, #131313 100%);
-      border-radius: 30px 30px 64px 64px;
-      padding: 12px 15px 38px;
-      box-shadow:
-        0 40px 100px rgba(0,0,0,0.95),
-        0 0 0 1px rgba(255,255,255,0.06),
-        inset 0 2px 1px rgba(255,255,255,0.13),
-        inset 0 -5px 0 rgba(0,0,0,0.7),
-        inset 2px 0 0 rgba(255,255,255,0.03);
-      position: relative;
+      background: #0d0d0d;
       user-select: none;
       -webkit-user-select: none;
     }
 
-    /* Left volume nub */
-    #phone::after {
-      content: '';
-      position: absolute;
-      left: -5px; top: 70px;
-      width: 5px; height: 28px;
-      background: linear-gradient(90deg, #111, #1e1e1e);
-      border-radius: 3px 0 0 3px;
-      box-shadow: 0 35px 0 0 #1a1a1a;
-    }
-
-    /* ── EARPIECE ── */
-    #earpiece {
-      display: flex; justify-content: center; gap: 3px;
-      margin-bottom: 8px;
-    }
-    #earpiece span {
-      width: 3px; height: 6px;
-      background: #0a0a0a;
-      border-radius: 2px;
-    }
-
-    /* ── FRONT CAMERA DOT ── */
-    #cam-row {
-      display: flex; justify-content: center; align-items: center; gap: 10px;
-      margin-bottom: 8px;
-    }
-    .cam-dot {
-      width: 5px; height: 5px;
-      background: #0d0d0d;
-      border-radius: 50%;
-      border: 1px solid #2a2a2a;
-    }
-
-    /* ── SCREEN BEZEL ── */
-    #screen-bezel {
-      background: #0b0b0b;
-      border-radius: 6px;
-      padding: 7px;
-      margin-bottom: 14px;
-      box-shadow: inset 0 5px 15px rgba(0,0,0,0.98), 0 1px 0 rgba(255,255,255,0.03);
-    }
-
-    /* ── LCD SCREEN ── */
-    #screen {
+    /* ══════════════════════════════
+       SCREEN ZONE  (fills top area)
+    ══════════════════════════════ */
+    #screen-zone {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
       background: #8BAC0F;
       position: relative;
-      overflow: hidden;
-      border-radius: 2px;
-    }
-
-    /* Scanline overlay for CRT feel */
-    #screen::after {
-      content: '';
-      position: absolute; inset: 0;
-      background: repeating-linear-gradient(
+      /* subtle scanlines */
+      background-image: repeating-linear-gradient(
         0deg,
-        transparent 0px, transparent 9px,
-        rgba(0,0,0,0.04) 9px, rgba(0,0,0,0.04) 10px
+        transparent 0px, transparent 8px,
+        rgba(0,0,0,0.035) 8px, rgba(0,0,0,0.035) 9px
       );
-      pointer-events: none;
-      z-index: 20;
     }
 
     /* Score bar */
     #score-bar {
-      background: #7a9a0a;
-      padding: 3px 7px 2px;
-      font: bold 11px/1 'Courier New', monospace;
+      flex: 0 0 auto;
+      background: #6e8c09;
+      padding: 6px 12px 5px;
+      font: bold 14px/1 'Courier New', monospace;
       color: #0F380F;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      letter-spacing: 1px;
+      letter-spacing: 2px;
+      border-bottom: 2px solid #5a7407;
+      position: relative;
+      z-index: 5;
     }
 
-    /* Canvas */
+    /* Canvas wrapper */
+    #canvas-wrap {
+      flex: 1 1 auto;
+      min-height: 0;
+      position: relative;
+      overflow: hidden;
+      background: #9BBC0F; /* LCD green shown outside canvas */
+    }
+
     #game-canvas {
       display: block;
-      width: 100%;
-      aspect-ratio: 20 / 16;
       image-rendering: pixelated;
       image-rendering: crisp-edges;
+      /* centered if canvas is smaller than container */
+      position: absolute;
+      top: 0; left: 0;
     }
 
     /* ── OVERLAYS ── */
     .ov {
       position: absolute;
-      top: 24px; left: 0; right: 0; bottom: 0; /* below score bar */
-      background: rgba(139, 172, 15, 0.96);
+      inset: 0;
+      background: rgba(139, 172, 15, 0.97);
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       z-index: 15;
       font-family: 'Courier New', monospace;
       text-align: center;
-      padding: 8px;
+      padding: 16px;
     }
 
     .ov h1 {
-      font-size: 26px; font-weight: 900;
+      font-size: 36px; font-weight: 900;
       color: #0F380F;
-      letter-spacing: 5px;
-      text-shadow: 2px 2px 0 #306230, -1px -1px 0 rgba(0,0,0,0.2);
-      margin-bottom: 2px;
+      letter-spacing: 8px;
+      text-shadow: 3px 3px 0 #306230, -1px -1px 0 rgba(0,0,0,0.15);
+      margin-bottom: 4px;
     }
 
     .ov h2 {
-      font-size: 13px; font-weight: bold;
-      color: #0F380F; letter-spacing: 3px;
-      margin-bottom: 6px;
+      font-size: 16px; font-weight: bold;
+      color: #0F380F; letter-spacing: 4px;
+      margin-bottom: 10px;
     }
 
-    .ov p { font-size: 9px; color: #306230; }
-
+    .ov p { font-size: 12px; color: #306230; }
     .ov .blink { animation: blink 0.9s step-end infinite; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
@@ -163,174 +113,170 @@
     #name-input {
       background: #306230;
       border: 2px solid #0F380F;
-      color: #9BBC0F;
-      padding: 4px 10px;
-      font: bold 12px 'Courier New', monospace;
+      color: #c8e030;
+      padding: 8px 14px;
+      font: bold 16px 'Courier New', monospace;
       text-align: center;
-      width: 140px; outline: none;
-      letter-spacing: 3px; margin: 8px 0 4px;
+      width: 200px; outline: none;
+      letter-spacing: 4px;
+      margin: 12px 0 6px;
       text-transform: uppercase;
       -webkit-appearance: none;
+      border-radius: 0;
     }
 
     .px-btn {
       background: #0F380F;
       color: #9BBC0F;
       border: none;
-      padding: 4px 16px;
-      font: bold 10px 'Courier New', monospace;
+      padding: 8px 24px;
+      font: bold 13px 'Courier New', monospace;
       letter-spacing: 2px;
       cursor: pointer;
-      margin-top: 4px;
+      margin-top: 6px;
     }
 
     /* Leaderboard */
     #leaderboard {
-      width: 168px;
-      font: 9px 'Courier New', monospace;
+      width: 220px;
+      font: 11px 'Courier New', monospace;
       color: #0F380F;
-      margin-top: 2px;
+      margin-top: 4px;
     }
-
     .lb-row {
       display: flex;
       justify-content: space-between;
-      padding: 2px 3px;
+      padding: 3px 6px;
       border-bottom: 1px solid rgba(15,56,15,0.3);
     }
     .lb-row.me { background: rgba(15,56,15,0.15); font-weight: bold; }
-    .lb-empty { font-size: 8px; color: #306230; text-align: center; padding: 4px; }
+    .lb-empty { font-size: 10px; color: #306230; text-align: center; padding: 6px; }
 
-    /* ── NOKIA LOGO ── */
-    #nokia-logo {
-      text-align: center;
-      font: 900 9px Arial, sans-serif;
-      color: #3a3a3a;
-      letter-spacing: 5px;
-      margin-bottom: 12px;
+    /* Firebase badge */
+    #fb-badge {
+      position: absolute;
+      top: 4px; right: 6px;
+      font: 7px 'Courier New', monospace;
+      color: rgba(15,56,15,0.55);
+      z-index: 25;
+      pointer-events: none;
     }
 
-    /* ── SOFT KEYS ── */
+    /* ══════════════════════════════
+       CONTROLS ZONE  (fixed bottom)
+    ══════════════════════════════ */
+    #controls-zone {
+      flex: 0 0 auto;
+      background: linear-gradient(180deg, #1e1e1e 0%, #111 100%);
+      border-top: 3px solid #0a0a0a;
+      padding-bottom: env(safe-area-inset-bottom, 8px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Nokia brand strip */
+    #nokia-strip {
+      width: 100%;
+      padding: 8px 0 4px;
+      text-align: center;
+      font: 900 10px Arial, sans-serif;
+      color: #333;
+      letter-spacing: 7px;
+    }
+
+    /* Soft keys */
     #soft-row {
       display: flex;
       justify-content: space-between;
-      padding: 0 4px;
+      width: 100%;
+      padding: 0 20px;
       margin-bottom: 10px;
     }
+
     .skey {
-      width: 74px; height: 26px;
-      background: linear-gradient(160deg, #3c3c3c, #1e1e1e);
+      width: 90px; height: 36px;
+      background: linear-gradient(160deg, #3a3a3a, #1e1e1e);
       border: none; border-radius: 20px;
-      color: #555; font: 8px 'Courier New', monospace;
-      letter-spacing: 1px;
+      color: #555; font: 9px 'Courier New', monospace;
+      letter-spacing: 2px;
       cursor: pointer;
       box-shadow: 0 3px 6px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.07);
       -webkit-tap-highlight-color: transparent;
     }
     .skey:active {
-      background: linear-gradient(160deg, #2a2a2a, #141414);
+      background: linear-gradient(160deg, #282828, #121212);
       transform: translateY(1px);
     }
 
-    /* ── D-PAD ── */
+    /* ── D-PAD (70px buttons) ── */
     #dpad {
       position: relative;
-      width: 156px; height: 156px;
-      margin: 0 auto;
+      width: 210px;
+      height: 210px;
+      margin-bottom: 10px;
     }
 
     .dpad-btn {
       position: absolute;
-      width: 52px; height: 52px;
-      background: linear-gradient(150deg, #4a4a4a 0%, #252525 100%);
+      width: 70px; height: 70px;
+      background: linear-gradient(150deg, #4c4c4c 0%, #272727 100%);
       border: none;
-      color: #999; font-size: 17px;
+      color: #aaa; font-size: 22px;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer;
       box-shadow:
-        0 5px 10px rgba(0,0,0,0.7),
-        inset 0 1px 0 rgba(255,255,255,0.10),
-        inset 0 -2px 0 rgba(0,0,0,0.4);
+        0 6px 12px rgba(0,0,0,0.7),
+        inset 0 1px 0 rgba(255,255,255,0.12),
+        inset 0 -3px 0 rgba(0,0,0,0.5);
       -webkit-tap-highlight-color: transparent;
-      transition: transform 0.07s, box-shadow 0.07s, color 0.07s;
+      transition: transform 0.07s, box-shadow 0.07s, color 0.07s, background 0.07s;
     }
 
     .dpad-btn:active {
-      background: linear-gradient(150deg, #333 0%, #181818 100%);
-      color: #ccc;
-      transform: scale(0.93);
+      background: linear-gradient(150deg, #333 0%, #161616 100%);
+      color: #ddd;
+      transform: scale(0.91);
       box-shadow: 0 2px 5px rgba(0,0,0,0.7);
     }
 
-    #btn-up    { top: 0;    left: 52px; border-radius: 10px 10px 4px 4px; }
-    #btn-down  { bottom: 0; left: 52px; border-radius: 4px 4px 10px 10px; }
-    #btn-left  { top: 52px; left: 0;    border-radius: 10px 4px 4px 10px; }
-    #btn-right { top: 52px; right: 0;   border-radius: 4px 10px 10px 4px; }
+    #btn-up    { top: 0;    left: 70px; border-radius: 12px 12px 4px 4px; }
+    #btn-down  { bottom: 0; left: 70px; border-radius: 4px 4px 12px 12px; }
+    #btn-left  { top: 70px; left: 0;    border-radius: 12px 4px 4px 12px; }
+    #btn-right { top: 70px; right: 0;   border-radius: 4px 12px 12px 4px; }
 
     #btn-center {
-      top: 52px; left: 52px;
-      background: linear-gradient(150deg, #5a5a5a, #303030);
+      top: 70px; left: 70px;
+      background: linear-gradient(150deg, #5c5c5c, #323232);
       border-radius: 50%;
-      color: #bbb; font-size: 9px;
+      color: #ccc; font-size: 11px;
       font-family: 'Courier New', monospace;
-      letter-spacing: 0;
       box-shadow:
-        0 5px 10px rgba(0,0,0,0.7),
-        inset 0 1px 0 rgba(255,255,255,0.15);
+        0 6px 12px rgba(0,0,0,0.7),
+        inset 0 1px 0 rgba(255,255,255,0.18);
     }
     #btn-center:active {
-      background: linear-gradient(150deg, #444, #202020);
-    }
-
-    /* Swipe hint */
-    #swipe-hint {
-      text-align: center;
-      font: 7px 'Courier New', monospace;
-      color: #2a2a2a;
-      margin-top: 10px;
-      letter-spacing: 1px;
-    }
-
-    /* Firebase badge */
-    #fb-badge {
-      position: absolute;
-      top: 3px; right: 4px;
-      font: 6px 'Courier New', monospace;
-      color: rgba(15,56,15,0.6);
-      z-index: 25;
+      background: linear-gradient(150deg, #444, #1e1e1e);
     }
   </style>
 </head>
 <body>
 
-<div id="phone-wrap">
-<div id="phone">
-  <!-- Earpiece -->
-  <div id="earpiece">
-    <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-  </div>
-
-  <!-- Camera row -->
-  <div id="cam-row">
-    <div class="cam-dot"></div>
-    <div class="cam-dot" style="opacity:0.3"></div>
-  </div>
-
-  <!-- Screen -->
-  <div id="screen-bezel">
-    <div id="screen">
-      <div id="score-bar">
-        <span id="score-disp">0000</span>
-        <span id="hi-disp">HI:0000</span>
-      </div>
-
-      <canvas id="game-canvas" width="200" height="160"></canvas>
+  <!-- ══ SCREEN ZONE ══ -->
+  <div id="screen-zone">
+    <div id="score-bar">
+      <span id="score-disp">0000</span>
+      <span style="font-size:11px;letter-spacing:3px;color:#4a6a04">SNAKE</span>
+      <span id="hi-disp">HI:0000</span>
+    </div>
+    <div id="canvas-wrap">
+      <canvas id="game-canvas"></canvas>
       <div id="fb-badge"></div>
 
       <!-- NAME ENTRY -->
       <div class="ov" id="ov-name">
         <h1>SNAKE</h1>
-        <p style="margin-bottom:2px">ENTER YOUR NAME:</p>
+        <p style="margin-bottom:4px;font-size:13px">ENTER YOUR NAME:</p>
         <input id="name-input" type="text" maxlength="8" placeholder="PLAYER"
                autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
         <button class="px-btn" id="name-ok">[ OK ]</button>
@@ -339,43 +285,39 @@
       <!-- START -->
       <div class="ov" id="ov-start" style="display:none">
         <h1>SNAKE</h1>
-        <p id="greet" style="margin-bottom:12px;font-size:10px;color:#0F380F;font-weight:bold;letter-spacing:1px"></p>
-        <p class="blink" style="font-size:10px;color:#0F380F">PRESS OK TO PLAY</p>
-        <p style="margin-top:16px;font-size:8px">USE D-PAD OR SWIPE</p>
+        <p id="greet" style="margin-bottom:16px;font-size:13px;color:#0F380F;font-weight:bold;letter-spacing:2px"></p>
+        <p class="blink" style="font-size:13px;color:#0F380F">PRESS OK TO PLAY</p>
+        <p style="margin-top:20px;font-size:10px">D-PAD · SWIPE · ARROW KEYS</p>
       </div>
 
       <!-- GAME OVER -->
       <div class="ov" id="ov-gameover" style="display:none">
         <h2>GAME OVER</h2>
-        <p id="go-score" style="font-size:14px;font-weight:bold;color:#0F380F;margin-bottom:8px"></p>
-        <p style="font-size:8px;letter-spacing:1px;color:#306230;margin-bottom:4px">── TOP 3 ──</p>
+        <p id="go-score" style="font-size:18px;font-weight:bold;color:#0F380F;margin-bottom:10px"></p>
+        <p style="font-size:10px;letter-spacing:2px;color:#306230;margin-bottom:6px">── TOP 3 SCORES ──</p>
         <div id="leaderboard"></div>
-        <p class="blink" style="margin-top:10px;font-size:10px;color:#0F380F">PRESS OK TO PLAY</p>
+        <p class="blink" style="margin-top:14px;font-size:13px;color:#0F380F">PRESS OK TO PLAY</p>
       </div>
     </div>
   </div>
 
-  <!-- Nokia brand -->
-  <div id="nokia-logo">NOKIA</div>
+  <!-- ══ CONTROLS ZONE ══ -->
+  <div id="controls-zone">
+    <div id="nokia-strip">NOKIA</div>
 
-  <!-- Soft keys -->
-  <div id="soft-row">
-    <button class="skey" id="skey-l">MENU</button>
-    <button class="skey" id="skey-r">BACK</button>
+    <div id="soft-row">
+      <button class="skey" id="skey-l">MENU</button>
+      <button class="skey" id="skey-r">BACK</button>
+    </div>
+
+    <div id="dpad">
+      <button class="dpad-btn" id="btn-up">▲</button>
+      <button class="dpad-btn" id="btn-left">◀</button>
+      <button class="dpad-btn" id="btn-center">OK</button>
+      <button class="dpad-btn" id="btn-right">▶</button>
+      <button class="dpad-btn" id="btn-down">▼</button>
+    </div>
   </div>
-
-  <!-- D-pad -->
-  <div id="dpad">
-    <button class="dpad-btn" id="btn-up">▲</button>
-    <button class="dpad-btn" id="btn-left">◀</button>
-    <button class="dpad-btn" id="btn-center">OK</button>
-    <button class="dpad-btn" id="btn-right">▶</button>
-    <button class="dpad-btn" id="btn-down">▼</button>
-  </div>
-
-  <div id="swipe-hint">SWIPE SCREEN TO STEER</div>
-</div>
-</div>
 
 <!--
 ╔══════════════════════════════════════════════════════════════╗
@@ -392,7 +334,6 @@
 ║  6. Scroll to "Your apps" → click </> → register app        ║
 ║  7. Copy the firebaseConfig object shown                     ║
 ║  8. Paste values into FIREBASE_CONFIG below                  ║
-║  9. (Optional) tighten security rules later                  ║
 ╚══════════════════════════════════════════════════════════════╝
 -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -407,15 +348,18 @@ const FIREBASE_CONFIG = {
   databaseURL: "",   // "https://your-app-default-rtdb.firebaseio.com"
   projectId:   "",   // "your-project-id"
 };
-/* ═══════════════════════════════════════════════════════════ */
 
-/* ─── GAME CONFIG ─── */
-const COLS = 20, ROWS = 16, CELL = 10;
+/* ─── PALETTE ─── */
 const PAL = { bg:'#9BBC0F', grid:'#8BAC0F', dark:'#0F380F', mid:'#306230' };
 const INIT_SPEED = 185, MIN_SPEED = 55, SPEED_STEP = 8;
 
+/* ─── GRID (dynamic) ─── */
+const COLS = 20;
+let ROWS = 16;
+let CELL = 10;
+
 /* ─── STATE ─── */
-let gState = 'name';        // name | start | playing | gameover
+let gState = 'name';
 let snake, dir, nextDir, food, score, loopTimer, tickN;
 let playerName = '';
 let localHi = 0;
@@ -424,6 +368,19 @@ let db = null, fbOk = false;
 /* ─── CANVAS ─── */
 const canvas = document.getElementById('game-canvas');
 const cx = canvas.getContext('2d');
+
+/* ─── GRID SIZING ─── */
+function calcGrid() {
+  const wrap = document.getElementById('canvas-wrap');
+  const w = wrap.clientWidth;
+  const h = wrap.clientHeight;
+  CELL = Math.floor(w / COLS);
+  ROWS = Math.max(10, Math.floor(h / CELL));
+  canvas.width  = COLS * CELL;
+  canvas.height = ROWS * CELL;
+  canvas.style.width  = canvas.width  + 'px';
+  canvas.style.height = canvas.height + 'px';
+}
 
 /* ─── AUDIO ─── */
 let audioCtx;
@@ -462,9 +419,7 @@ function initFirebase() {
 async function getLeaderboard() {
   if (fbOk && db) {
     return new Promise(resolve => {
-      db.ref('leaderboard')
-        .orderByChild('score')
-        .limitToLast(10)
+      db.ref('leaderboard').orderByChild('score').limitToLast(10)
         .once('value', snap => {
           const arr = [];
           snap.forEach(c => arr.push(c.val()));
@@ -476,8 +431,7 @@ async function getLeaderboard() {
 }
 
 function localScores() {
-  const raw = localStorage.getItem('snk_scores');
-  const arr = raw ? JSON.parse(raw) : [];
+  const arr = JSON.parse(localStorage.getItem('snk_scores') || '[]');
   return arr.sort((a,b) => b.score - a.score).slice(0,3);
 }
 
@@ -486,7 +440,7 @@ async function submitScore(name, s) {
   if (fbOk && db) {
     try { await db.ref('leaderboard').push(entry); return; } catch(e) {}
   }
-  const arr = localScores();
+  const arr = JSON.parse(localStorage.getItem('snk_scores') || '[]');
   arr.push(entry);
   arr.sort((a,b) => b.score - a.score);
   localStorage.setItem('snk_scores', JSON.stringify(arr.slice(0,50)));
@@ -494,7 +448,8 @@ async function submitScore(name, s) {
 
 /* ─── GAME LOGIC ─── */
 function newGame() {
-  snake = [{ x:5, y:8 }, { x:4, y:8 }, { x:3, y:8 }];
+  const startY = Math.floor(ROWS / 2);
+  snake = [{ x:5, y:startY }, { x:4, y:startY }, { x:3, y:startY }];
   dir = { x:1, y:0 };
   nextDir = { x:1, y:0 };
   score = 0; tickN = 0;
@@ -510,7 +465,7 @@ function spawnFood() {
   food = p;
 }
 
-function speed() { return Math.max(MIN_SPEED, INIT_SPEED - Math.floor(score/3)*SPEED_STEP); }
+function curSpeed() { return Math.max(MIN_SPEED, INIT_SPEED - Math.floor(score/3)*SPEED_STEP); }
 
 function step() {
   tickN++;
@@ -534,7 +489,7 @@ function step() {
   }
 
   draw();
-  loopTimer = setTimeout(step, speed());
+  loopTimer = setTimeout(step, curSpeed());
 }
 
 async function endGame() {
@@ -551,7 +506,6 @@ async function endGame() {
   const leaders = await getLeaderboard();
   const lb = document.getElementById('leaderboard');
   lb.innerHTML = '';
-
   if (leaders.length === 0) {
     lb.innerHTML = '<div class="lb-empty">NO SCORES YET</div>';
   } else {
@@ -563,7 +517,6 @@ async function endGame() {
       lb.appendChild(row);
     });
   }
-
   show('ov-gameover');
 }
 
@@ -572,18 +525,18 @@ function startPlaying() {
   gState = 'playing';
   newGame();
   SFX.start();
-  loopTimer = setTimeout(step, speed());
+  loopTimer = setTimeout(step, curSpeed());
 }
 
 /* ─── DRAWING ─── */
 function draw() {
-  const W = COLS * CELL, H = ROWS * CELL;
+  const u = CELL / 10; // scale unit so all drawing is proportional
 
   // Background
   cx.fillStyle = PAL.bg;
-  cx.fillRect(0, 0, W, H);
+  cx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Subtle pixel grid
+  // Subtle pixel grid lines
   cx.fillStyle = PAL.grid;
   for (let x = 0; x < COLS; x++)
     for (let y = 0; y < ROWS; y++) {
@@ -591,39 +544,40 @@ function draw() {
       cx.fillRect(x*CELL, y*CELL + CELL-1, CELL-1, 1);
     }
 
-  // Food — blinks every other tick
+  // Food — blinks every other tick while playing
   if (food && (tickN % 2 === 0 || gState !== 'playing')) {
     const fx = food.x*CELL, fy = food.y*CELL;
     cx.fillStyle = PAL.dark;
-    // Diamond shape (10×10 cell)
-    cx.fillRect(fx+4, fy+1, 2, 2);
-    cx.fillRect(fx+2, fy+3, 6, 2);
-    cx.fillRect(fx+1, fy+4, 8, 2);
-    cx.fillRect(fx+2, fy+6, 6, 2);
-    cx.fillRect(fx+4, fy+8, 2, 1);
+    // Diamond shape, proportional to CELL
+    cx.fillRect(fx+4*u, fy+1*u, 2*u, 2*u);
+    cx.fillRect(fx+2*u, fy+3*u, 6*u, 2*u);
+    cx.fillRect(fx+1*u, fy+4*u, 8*u, 2*u);
+    cx.fillRect(fx+2*u, fy+6*u, 6*u, 2*u);
+    cx.fillRect(fx+4*u, fy+8*u, 2*u, 1*u);
   }
 
-  // Snake — draw body then head on top
+  // Snake body
   snake.forEach((seg, i) => {
     const px = seg.x*CELL, py = seg.y*CELL;
     cx.fillStyle = PAL.dark;
-    cx.fillRect(px+1, py+1, CELL-2, CELL-2);
-    if (i > 0) {                          // body: lighter inner
+    cx.fillRect(px+u, py+u, CELL-2*u, CELL-2*u);
+    if (i > 0) { // lighter inner on body segments
       cx.fillStyle = PAL.mid;
-      cx.fillRect(px+3, py+3, CELL-6, CELL-6);
+      cx.fillRect(px+3*u, py+3*u, CELL-6*u, CELL-6*u);
     }
   });
 
-  // Connect adjacent segments (fill the 2px gap between them)
+  // Bridge the 2-unit gap between adjacent segments
   cx.fillStyle = PAL.dark;
   for (let i = 0; i < snake.length-1; i++) {
     const a = snake[i], b = snake[i+1];
     const dx = b.x-a.x, dy = b.y-a.y;
-    if (Math.abs(dx)+Math.abs(dy) !== 1) continue; // skip if not adjacent
-    if (dx === 1)       cx.fillRect(a.x*CELL+CELL-1, a.y*CELL+2, 2, CELL-4);
-    else if (dx === -1) cx.fillRect(a.x*CELL-1,       a.y*CELL+2, 2, CELL-4);
-    else if (dy === 1)  cx.fillRect(a.x*CELL+2, a.y*CELL+CELL-1, CELL-4, 2);
-    else                cx.fillRect(a.x*CELL+2, a.y*CELL-1,       CELL-4, 2);
+    if (Math.abs(dx)+Math.abs(dy) !== 1) continue;
+    const m = 2*u; // margin along perpendicular
+    if      (dx ===  1) cx.fillRect(a.x*CELL+CELL-u, a.y*CELL+m, 2*u, CELL-2*m);
+    else if (dx === -1) cx.fillRect(a.x*CELL-u,       a.y*CELL+m, 2*u, CELL-2*m);
+    else if (dy ===  1) cx.fillRect(a.x*CELL+m, a.y*CELL+CELL-u, CELL-2*m, 2*u);
+    else                cx.fillRect(a.x*CELL+m, a.y*CELL-u,       CELL-2*m, 2*u);
   }
 }
 
@@ -639,11 +593,10 @@ function pressOK() {
   if (gState === 'start' || gState === 'gameover') startPlaying();
 }
 
-// D-pad touch/click
 function dpadBtn(id, handler) {
   const el = document.getElementById(id);
   el.addEventListener('touchstart', e => { e.preventDefault(); handler(); }, { passive:false });
-  el.addEventListener('mousedown', e => { e.preventDefault(); handler(); });
+  el.addEventListener('mousedown',  e => { e.preventDefault(); handler(); });
 }
 
 dpadBtn('btn-up',     () => changeDir(0,-1));
@@ -665,7 +618,7 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// Swipe on screen
+// Swipe on canvas
 let tx0, ty0;
 canvas.addEventListener('touchstart', e => {
   tx0 = e.touches[0].clientX;
@@ -675,7 +628,7 @@ canvas.addEventListener('touchstart', e => {
 canvas.addEventListener('touchend', e => {
   const dx = e.changedTouches[0].clientX - tx0;
   const dy = e.changedTouches[0].clientY - ty0;
-  if (Math.abs(dx) < 10 && Math.abs(dy) < 10) { pressOK(); return; }
+  if (Math.abs(dx) < 12 && Math.abs(dy) < 12) { pressOK(); return; }
   Math.abs(dx) > Math.abs(dy)
     ? changeDir(dx > 0 ? 1 : -1, 0)
     : changeDir(0, dy > 0 ? 1 : -1);
@@ -710,38 +663,23 @@ document.getElementById('name-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') submitName();
 });
 
-/* ─── PHONE SCALING ─── */
-function scalePhone() {
-  const vw = window.innerWidth, vh = window.innerHeight;
-  const phoneH = 560; // approx rendered height
-  const s = Math.min(vw / 300, vh / phoneH, 1);
-  document.getElementById('phone-wrap').style.transform = s < 1 ? `scale(${s.toFixed(3)})` : '';
-}
-window.addEventListener('resize', scalePhone);
-scalePhone();
-
-/* ─── GENERATE PWA ICON ─── */
+/* ─── PWA ICON ─── */
 function makePwaIcon() {
   const ic = document.createElement('canvas');
   ic.width = ic.height = 192;
   const c = ic.getContext('2d');
-  // Background
   c.fillStyle = '#1a1a1a';
   c.roundRect(0,0,192,192,32); c.fill();
-  // Screen
   c.fillStyle = '#8BAC0F';
   c.fillRect(24, 36, 144, 112);
-  // Snake on icon
   c.fillStyle = '#0F380F';
   [[3,2],[4,2],[5,2],[5,3],[5,4],[4,4],[3,4],[3,5],[3,6],[4,6],[5,6]].forEach(([x,y]) => {
-    c.fillRect(24 + x*16, 36 + y*16, 14, 14);
+    c.fillRect(24+x*16, 36+y*16, 14, 14);
   });
-  // Food
-  c.fillRect(24 + 7*16 + 4, 36 + 3*16 + 4, 6, 6);
-  const url = ic.toDataURL('image/png');
+  c.fillRect(24+7*16+4, 36+3*16+4, 6, 6);
   let link = document.querySelector("link[rel='apple-touch-icon']");
   if (!link) { link = document.createElement('link'); link.rel = 'apple-touch-icon'; document.head.appendChild(link); }
-  link.href = url;
+  link.href = ic.toDataURL('image/png');
 }
 makePwaIcon();
 
@@ -749,19 +687,24 @@ makePwaIcon();
 initFirebase();
 localHi = parseInt(localStorage.getItem('snk_hi') || '0');
 
-const saved = localStorage.getItem('snk_name');
-if (saved) {
-  playerName = saved;
-  hide('ov-name');
-  show('ov-start');
-  document.getElementById('greet').textContent = 'HELLO, ' + playerName + '!';
-  gState = 'start';
-  newGame(); draw();
-} else {
-  newGame(); draw();
-}
+// Size the canvas after layout is painted, then start
+requestAnimationFrame(() => {
+  calcGrid();
 
-// Register service worker
+  const saved = localStorage.getItem('snk_name');
+  if (saved) {
+    playerName = saved;
+    hide('ov-name');
+    show('ov-start');
+    document.getElementById('greet').textContent = 'HELLO, ' + playerName + '!';
+    gState = 'start';
+    newGame(); draw();
+  } else {
+    newGame(); draw();
+  }
+});
+
+// Service worker
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
