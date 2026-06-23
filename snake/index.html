@@ -367,6 +367,7 @@ let CELL = 10;
 /* ─── STATE ─── */
 let gState = 'name';
 let snake, dir, nextDir, food, score, loopTimer, tickN;
+let foodVisible = true; // toggled by its own interval, independent of game speed
 let playerName = '';
 let localHi = 0;
 let db = null, fbOk = false;
@@ -465,10 +466,11 @@ function newGame() {
 
 function spawnFood() {
   const occ = new Set(snake.map(s => `${s.x},${s.y}`));
-  let p;
+  let p, tries = 0;
   do { p = { x: (Math.random()*COLS)|0, y: (Math.random()*ROWS)|0 }; }
-  while (occ.has(`${p.x},${p.y}`));
+  while (occ.has(`${p.x},${p.y}`) && ++tries < COLS * ROWS);
   food = p;
+  foodVisible = true;
 }
 
 function curSpeed() { return Math.max(MIN_SPEED, INIT_SPEED - Math.floor(score/3)*SPEED_STEP); }
@@ -550,8 +552,8 @@ function draw() {
       cx.fillRect(x*CELL, y*CELL + CELL-1, CELL-1, 1);
     }
 
-  // Food — blinks every other tick while playing
-  if (food && (tickN % 2 === 0 || gState !== 'playing')) {
+  // Food — blinks on a fixed 500ms interval independent of game speed
+  if (food && (foodVisible || gState !== 'playing')) {
     const fx = food.x*CELL, fy = food.y*CELL;
     cx.fillStyle = PAL.dark;
     // Diamond shape, proportional to CELL
@@ -684,6 +686,7 @@ makePwaIcon();
 /* ─── INIT ─── */
 initFirebase();
 localHi = parseInt(localStorage.getItem('snk_hi') || '0');
+setInterval(() => { foodVisible = !foodVisible; }, 500);
 
 // Size the canvas after layout is painted, then start
 requestAnimationFrame(() => {
