@@ -175,17 +175,17 @@
       align-items: center;
     }
 
-    /* SKT logo strip */
+    /* SKT Mini Games logo strip */
     #nokia-strip {
       width: 100%;
-      padding: 4px 0 2px;
+      padding: 2px 0 1px;
       display: flex;
       justify-content: center;
       align-items: center;
     }
 
     #skt-logo {
-      height: 48px;
+      height: 34px; /* ~70% of previous 48px */
       width: auto;
     }
 
@@ -308,25 +308,25 @@
   <!-- ══ CONTROLS ZONE ══ -->
   <div id="controls-zone">
     <div id="nokia-strip">
-      <!-- SKT Group logo — recreated as inline SVG -->
-      <svg id="skt-logo" viewBox="0 0 230 90" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SKT Group">
+      <!-- SKT Mini Games logo — inline SVG matching Playground-2.png -->
+      <svg id="skt-logo" viewBox="0 0 265 108" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SKT Mini Games">
         <defs>
-          <!-- Arc path for curved GROUP text, sweeping top-right around SKT -->
-          <path id="grp-arc" d="M 138,6 A 66,66 0 0,1 222,76"/>
+          <!-- Arc sweeping from top-centre of T down the right side for "Mini Games" -->
+          <path id="mg-arc" d="M 168,14 A 76,76 0 0,1 252,88"/>
         </defs>
-        <!-- Large bold SKT lettering -->
-        <text x="2" y="78"
+        <!-- Large bold rounded-serif SKT -->
+        <text x="3" y="90"
               font-family="Georgia,'Times New Roman',serif"
               font-weight="900"
-              font-size="78"
+              font-size="88"
               fill="#F4521E">SKT</text>
-        <!-- Curved GROUP text -->
-        <text font-family="'Arial Black','Arial Bold',Arial,sans-serif"
-              font-weight="900"
-              font-size="11.5"
-              fill="#F4521E"
-              letter-spacing="3.5">
-          <textPath href="#grp-arc">GROUP</textPath>
+        <!-- "Mini Games" curved along the arc, italic casual style -->
+        <text font-family="Georgia,'Times New Roman',serif"
+              font-style="italic"
+              font-weight="700"
+              font-size="15"
+              fill="#F4521E">
+          <textPath href="#mg-arc">Mini Games</textPath>
         </text>
       </svg>
     </div>
@@ -689,20 +689,49 @@ document.getElementById('name-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') submitName();
 });
 
-/* ─── PWA ICON ─── */
+/* ─── PWA ICON — SKT Mini Games (matches Playground-2.png) ─── */
 function makePwaIcon() {
   const ic = document.createElement('canvas');
   ic.width = ic.height = 192;
   const c = ic.getContext('2d');
-  c.fillStyle = '#1a1a1a';
-  c.roundRect(0,0,192,192,32); c.fill();
-  c.fillStyle = '#8BAC0F';
-  c.fillRect(24, 36, 144, 112);
-  c.fillStyle = '#0F380F';
-  [[3,2],[4,2],[5,2],[5,3],[5,4],[4,4],[3,4],[3,5],[3,6],[4,6],[5,6]].forEach(([x,y]) => {
-    c.fillRect(24+x*16, 36+y*16, 14, 14);
-  });
-  c.fillRect(24+7*16+4, 36+3*16+4, 6, 6);
+
+  // White background with subtle rounded corners
+  c.fillStyle = '#ffffff';
+  c.beginPath();
+  c.roundRect(0, 0, 192, 192, 28);
+  c.fill();
+
+  // Draw "SKT" in bold orange serif
+  c.fillStyle = '#F4521E';
+  c.font = '900 88px Georgia, serif';
+  c.textBaseline = 'alphabetic';
+  c.fillText('SKT', 8, 118);
+
+  // Draw "Mini Games" curved along an arc (approximate with rotated text segments)
+  const cx0 = 148, cy0 = 118; // centre of arc (bottom of T)
+  const r = 72;
+  // Place each character along a quarter-circle arc from ~-90° to ~15°
+  const text = 'Mini Games';
+  const startAngle = -1.62; // radians (~-93°, just past top)
+  const endAngle   =  0.32; // radians (~18°)
+  const step = (endAngle - startAngle) / (text.length - 1);
+
+  c.font = 'italic 700 14px Georgia, serif';
+  c.fillStyle = '#F4521E';
+  c.textAlign = 'center';
+  c.textBaseline = 'middle';
+
+  for (let i = 0; i < text.length; i++) {
+    const angle = startAngle + i * step;
+    const tx = cx0 + r * Math.cos(angle);
+    const ty = cy0 + r * Math.sin(angle);
+    c.save();
+    c.translate(tx, ty);
+    c.rotate(angle + Math.PI / 2); // rotate glyph to follow the arc tangent
+    c.fillText(text[i], 0, 0);
+    c.restore();
+  }
+
   let link = document.querySelector("link[rel='apple-touch-icon']");
   if (!link) { link = document.createElement('link'); link.rel = 'apple-touch-icon'; document.head.appendChild(link); }
   link.href = ic.toDataURL('image/png');
