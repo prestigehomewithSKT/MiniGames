@@ -175,14 +175,18 @@
       align-items: center;
     }
 
-    /* Nokia brand strip */
+    /* SKT logo strip */
     #nokia-strip {
       width: 100%;
-      padding: 8px 0 4px;
-      text-align: center;
-      font: 900 10px Arial, sans-serif;
-      color: #333;
-      letter-spacing: 7px;
+      padding: 4px 0 2px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #skt-logo {
+      height: 48px;
+      width: auto;
     }
 
     /* Soft keys */
@@ -303,7 +307,29 @@
 
   <!-- ══ CONTROLS ZONE ══ -->
   <div id="controls-zone">
-    <div id="nokia-strip">NOKIA</div>
+    <div id="nokia-strip">
+      <!-- SKT Group logo — recreated as inline SVG -->
+      <svg id="skt-logo" viewBox="0 0 230 90" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SKT Group">
+        <defs>
+          <!-- Arc path for curved GROUP text, sweeping top-right around SKT -->
+          <path id="grp-arc" d="M 138,6 A 66,66 0 0,1 222,76"/>
+        </defs>
+        <!-- Large bold SKT lettering -->
+        <text x="2" y="78"
+              font-family="Georgia,'Times New Roman',serif"
+              font-weight="900"
+              font-size="78"
+              fill="#F4521E">SKT</text>
+        <!-- Curved GROUP text -->
+        <text font-family="'Arial Black','Arial Bold',Arial,sans-serif"
+              font-weight="900"
+              font-size="11.5"
+              fill="#F4521E"
+              letter-spacing="3.5">
+          <textPath href="#grp-arc">GROUP</textPath>
+        </text>
+      </svg>
+    </div>
 
     <div id="soft-row">
       <button class="skey" id="skey-l">MENU</button>
