@@ -669,52 +669,15 @@ document.getElementById('name-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') submitName();
 });
 
-/* ─── PWA ICON — SKT Mini Games (matches Playground-2.png) ─── */
+/* ─── PWA ICON — points directly to the uploaded icon-192.png ─── */
 function makePwaIcon() {
-  const ic = document.createElement('canvas');
-  ic.width = ic.height = 192;
-  const c = ic.getContext('2d');
-
-  // White background with subtle rounded corners
-  c.fillStyle = '#ffffff';
-  c.beginPath();
-  c.roundRect(0, 0, 192, 192, 28);
-  c.fill();
-
-  // Draw "SKT" in bold orange serif
-  c.fillStyle = '#F4521E';
-  c.font = '900 88px Georgia, serif';
-  c.textBaseline = 'alphabetic';
-  c.fillText('SKT', 8, 118);
-
-  // Draw "Mini Games" curved along an arc (approximate with rotated text segments)
-  const cx0 = 148, cy0 = 118; // centre of arc (bottom of T)
-  const r = 72;
-  // Place each character along a quarter-circle arc from ~-90° to ~15°
-  const text = 'Mini Games';
-  const startAngle = -1.62; // radians (~-93°, just past top)
-  const endAngle   =  0.32; // radians (~18°)
-  const step = (endAngle - startAngle) / (text.length - 1);
-
-  c.font = 'italic 700 14px Georgia, serif';
-  c.fillStyle = '#F4521E';
-  c.textAlign = 'center';
-  c.textBaseline = 'middle';
-
-  for (let i = 0; i < text.length; i++) {
-    const angle = startAngle + i * step;
-    const tx = cx0 + r * Math.cos(angle);
-    const ty = cy0 + r * Math.sin(angle);
-    c.save();
-    c.translate(tx, ty);
-    c.rotate(angle + Math.PI / 2); // rotate glyph to follow the arc tangent
-    c.fillText(text[i], 0, 0);
-    c.restore();
-  }
-
   let link = document.querySelector("link[rel='apple-touch-icon']");
-  if (!link) { link = document.createElement('link'); link.rel = 'apple-touch-icon'; document.head.appendChild(link); }
-  link.href = ic.toDataURL('image/png');
+  if (!link) {
+    link = document.createElement('link');
+    link.rel = 'apple-touch-icon';
+    document.head.appendChild(link);
+  }
+  link.href = 'icon-192.png';
 }
 makePwaIcon();
 
