@@ -185,8 +185,21 @@
     }
 
     #skt-logo {
-      height: 34px; /* ~70% of previous 48px */
+      height: 51px;
       width: auto;
+    }
+
+    /* Watermark in canvas area */
+    #watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 55%;
+      max-width: 180px;
+      opacity: 0.08;
+      pointer-events: none;
+      z-index: 1;
     }
 
     /* Soft keys */
@@ -270,11 +283,12 @@
   <div id="screen-zone">
     <div id="score-bar">
       <span id="score-disp">0000</span>
-      <span style="font-size:11px;letter-spacing:3px;color:#4a6a04">SNAKE</span>
-      <span id="hi-disp">HI:0000</span>
+      <span style="font-size:9px;letter-spacing:1px;color:#4a6a04">SKT Mini Games</span>
+      <span id="hi-disp">SCORE:0000</span>
     </div>
     <div id="canvas-wrap">
       <canvas id="game-canvas"></canvas>
+      <img id="watermark" src="icon-152.png" alt="">
       <div id="fb-badge"></div>
 
       <!-- NAME ENTRY -->
@@ -296,6 +310,7 @@
 
       <!-- GAME OVER -->
       <div class="ov" id="ov-gameover" style="display:none">
+        <img src="icon-152.png" alt="SKT Mini Games" style="height:60px;width:auto;margin-bottom:10px;">
         <h2>GAME OVER</h2>
         <p id="go-score" style="font-size:18px;font-weight:bold;color:#0F380F;margin-bottom:10px"></p>
         <p style="font-size:10px;letter-spacing:2px;color:#306230;margin-bottom:6px">── TOP 3 SCORES ──</p>
@@ -308,7 +323,7 @@
   <!-- ══ CONTROLS ZONE ══ -->
   <div id="controls-zone">
     <div id="nokia-strip">
-      <img id="skt-logo" src="icon-192.png" alt="SKT Mini Games">
+      <img id="skt-logo" src="icon-152.png" alt="SKT Mini Games">
     </div>
 
     <div id="soft-row">
@@ -648,7 +663,7 @@ function fmt(n) { return String(n).padStart(4, '0'); }
 function updateScoreBar() {
   document.getElementById('score-disp').textContent = fmt(score);
   if (score > localHi) localHi = score;
-  document.getElementById('hi-disp').textContent = 'HI:' + fmt(localHi);
+  document.getElementById('hi-disp').textContent = 'SCORE:' + fmt(localHi);
 }
 
 function show(id) { document.getElementById(id).style.display = 'flex'; }
