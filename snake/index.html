@@ -185,7 +185,7 @@
     }
 
     #skt-logo {
-      height: 77px;
+      height: 231px;
       width: auto;
     }
 
@@ -195,8 +195,8 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 165%;
-      max-width: 540px;
+      width: 495%;
+      max-width: 1620px;
       opacity: 0.08;
       pointer-events: none;
       z-index: 1;
@@ -304,18 +304,34 @@
       <div class="ov" id="ov-start" style="display:none">
         <h1>SNAKE</h1>
         <p id="greet" style="margin-bottom:16px;font-size:13px;color:#0F380F;font-weight:bold;letter-spacing:2px"></p>
-        <p class="blink" style="font-size:13px;color:#0F380F">PRESS OK TO PLAY</p>
+        <p class="blink" style="font-size:13px;color:#0F380F">PRESS PLAY</p>
         <p style="margin-top:20px;font-size:10px">D-PAD · SWIPE · ARROW KEYS</p>
       </div>
 
       <!-- GAME OVER -->
       <div class="ov" id="ov-gameover" style="display:none">
-        <img src="icon-152.png" alt="SKT Mini Games" style="height:90px;width:auto;margin-bottom:10px;">
+        <img src="icon-152.png" alt="SKT Mini Games" style="height:270px;width:auto;margin-bottom:10px;">
         <h2>GAME OVER</h2>
         <p id="go-score" style="font-size:18px;font-weight:bold;color:#0F380F;margin-bottom:10px"></p>
         <p style="font-size:10px;letter-spacing:2px;color:#306230;margin-bottom:6px">── TOP 3 SCORES ──</p>
         <div id="leaderboard"></div>
-        <p class="blink" style="margin-top:14px;font-size:13px;color:#0F380F">PRESS OK TO PLAY</p>
+        <p class="blink" style="margin-top:14px;font-size:13px;color:#0F380F">PRESS PLAY</p>
+      </div>
+
+      <!-- PAUSED -->
+      <div class="ov" id="ov-pause" style="display:none">
+        <img src="icon-152.png" alt="SKT Mini Games" style="height:270px;width:auto;margin-bottom:12px;">
+        <h2>PAUSED</h2>
+        <p class="blink" style="font-size:13px;color:#0F380F;margin-top:10px">PRESS PLAY TO RESUME</p>
+      </div>
+
+      <!-- RANKING -->
+      <div class="ov" id="ov-ranking" style="display:none">
+        <img src="icon-152.png" alt="SKT Mini Games" style="height:270px;width:auto;margin-bottom:10px;">
+        <h2>RANKING</h2>
+        <p style="font-size:10px;letter-spacing:2px;color:#306230;margin-bottom:6px">── TOP 3 SCORES ──</p>
+        <div id="leaderboard-rank" style="width:220px;font:11px 'Courier New',monospace;color:#0F380F;margin-top:4px;"></div>
+        <button class="px-btn" id="rank-close" style="margin-top:14px;">[ CLOSE ]</button>
       </div>
     </div>
   </div>
@@ -327,14 +343,14 @@
     </div>
 
     <div id="soft-row">
-      <button class="skey" id="skey-l">MENU</button>
-      <button class="skey" id="skey-r">BACK</button>
+      <button class="skey" id="skey-l">RANKING</button>
+      <button class="skey" id="skey-r">PAUSE</button>
     </div>
 
     <div id="dpad">
       <button class="dpad-btn" id="btn-up">▲</button>
       <button class="dpad-btn" id="btn-left">◀</button>
-      <button class="dpad-btn" id="btn-center">OK</button>
+      <button class="dpad-btn" id="btn-center" style="font-size:9px;letter-spacing:1px;">PLAY</button>
       <button class="dpad-btn" id="btn-right">▶</button>
       <button class="dpad-btn" id="btn-down">▼</button>
     </div>
@@ -544,12 +560,57 @@ async function endGame() {
 }
 
 function startPlaying() {
-  hide('ov-start'); hide('ov-gameover');
+  hide('ov-start'); hide('ov-gameover'); hide('ov-pause'); hide('ov-ranking');
   gState = 'playing';
   newGame();
   SFX.start();
   loopTimer = setTimeout(step, curSpeed());
 }
+
+function togglePause() {
+  if (gState === 'playing') {
+    clearTimeout(loopTimer); loopTimer = null;
+    gState = 'paused';
+    SFX.menu();
+    show('ov-pause');
+    document.getElementById('skey-r').textContent = 'RESUME';
+  } else if (gState === 'paused') {
+    hide('ov-pause');
+    gState = 'playing';
+    SFX.menu();
+    document.getElementById('skey-r').textContent = 'PAUSE';
+    loopTimer = setTimeout(step, curSpeed());
+  }
+}
+
+async function showRanking() {
+  SFX.menu();
+  const wasPaused = gState === 'paused';
+  if (gState === 'playing') {
+    clearTimeout(loopTimer); loopTimer = null;
+    gState = 'paused';
+    document.getElementById('skey-r').textContent = 'RESUME';
+  }
+  const leaders = await getLeaderboard();
+  const lb = document.getElementById('leaderboard-rank');
+  lb.innerHTML = '';
+  if (leaders.length === 0) {
+    lb.innerHTML = '<div class="lb-empty">NO SCORES YET</div>';
+  } else {
+    leaders.forEach((e, i) => {
+      const row = document.createElement('div');
+      row.className = 'lb-row';
+      row.innerHTML = `<span>${i+1}. ${e.name}</span><span>${fmt(e.score)}</span>`;
+      lb.appendChild(row);
+    });
+  }
+  show('ov-ranking');
+}
+
+document.getElementById('rank-close').addEventListener('click', () => {
+  hide('ov-ranking');
+  if (gState === 'paused') show('ov-pause');
+});
 
 /* ─── DRAWING ─── */
 function draw() {
@@ -611,9 +672,10 @@ function changeDir(dx, dy) {
   if (dy !== 0 && dir.y === 0) nextDir = { x:0, y:dy };
 }
 
-function pressOK() {
+function pressPlay() {
   SFX.menu();
   if (gState === 'start' || gState === 'gameover') startPlaying();
+  else if (gState === 'paused') togglePause();
 }
 
 function dpadBtn(id, handler) {
@@ -626,9 +688,9 @@ dpadBtn('btn-up',     () => changeDir(0,-1));
 dpadBtn('btn-down',   () => changeDir(0, 1));
 dpadBtn('btn-left',   () => changeDir(-1,0));
 dpadBtn('btn-right',  () => changeDir( 1,0));
-dpadBtn('btn-center', pressOK);
-dpadBtn('skey-l', () => {});
-dpadBtn('skey-r', () => {});
+dpadBtn('btn-center', pressPlay);
+dpadBtn('skey-l', showRanking);
+dpadBtn('skey-r', togglePause);
 
 // Keyboard
 document.addEventListener('keydown', e => {
@@ -637,7 +699,8 @@ document.addEventListener('keydown', e => {
     case 'ArrowDown':  case 's': case 'S': changeDir(0, 1); break;
     case 'ArrowLeft':  case 'a': case 'A': changeDir(-1,0); break;
     case 'ArrowRight': case 'd': case 'D': changeDir( 1,0); break;
-    case 'Enter': case ' ': pressOK(); break;
+    case 'Enter': case ' ': pressPlay(); break;
+    case 'p': case 'P': case 'Escape': togglePause(); break;
   }
 });
 
@@ -651,7 +714,7 @@ canvas.addEventListener('touchstart', e => {
 canvas.addEventListener('touchend', e => {
   const dx = e.changedTouches[0].clientX - tx0;
   const dy = e.changedTouches[0].clientY - ty0;
-  if (Math.abs(dx) < 12 && Math.abs(dy) < 12) { pressOK(); return; }
+  if (Math.abs(dx) < 12 && Math.abs(dy) < 12) { pressPlay(); return; }
   Math.abs(dx) > Math.abs(dy)
     ? changeDir(dx > 0 ? 1 : -1, 0)
     : changeDir(0, dy > 0 ? 1 : -1);
